@@ -1,11 +1,12 @@
-let root = document.querySelector(".root");
+import React from "react";
+import ReactDOM from "react-dom/client";
 
 let heading = React.createElement(
   "h1",
   { id: "main-heading", className: "heading" },
-  "Hello from react my friend"
+  "Hello my friend, from react"
 );
 
-let Root = ReactDOM.createRoot(root);
+let root = ReactDOM.createRoot(document.querySelector(".root"));
 
-Root.render(heading);
+root.render(heading);
