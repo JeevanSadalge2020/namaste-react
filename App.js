@@ -1,15 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-let Heading = () => <h1 className="heading">Hello React</h1>;
+let heading = <h1 className="heading">Hello React</h1>;
 
-let Content = () => <p>We are learning namaste React.</p>;
+let today_date = new Date().toDateString();
+
+let Content = () => (
+  <p>
+    Today it's <b>{today_date}</b> and we are learning namaste React.
+  </p>
+);
 
 let Container = () => {
   return (
     <div>
-      <Heading></Heading>
+      {heading}
       <Content></Content>
+      <Content />
+      {Content()}
     </div>
   );
 };
