@@ -1,27 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-let heading = <h1 className="heading">Hello React</h1>;
+import Header from "./components/Header.js";
+import Main from "./components/Main.js";
 
-let today_date = new Date().toDateString();
-
-let Content = () => (
-  <p>
-    Today it's <b>{today_date}</b> and we are learning namaste React.
-  </p>
-);
-
-let Container = () => {
+const App = () => {
   return (
-    <div>
-      {heading}
-      <Content></Content>
-      <Content />
-      {Content()}
+    <div id="app-container">
+      <Header></Header>
+      <Main></Main>
     </div>
   );
 };
 
 let root = ReactDOM.createRoot(document.querySelector(".root"));
 
-root.render(<Container></Container>);
+root.render(<App></App>);
