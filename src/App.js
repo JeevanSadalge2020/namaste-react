@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import Header from "./components/Header.js";
-import Main from "./components/Main.js";
+import Header from "./components/Header";
+import Main from "./components/Main";
 
 const App = () => {
   return (
