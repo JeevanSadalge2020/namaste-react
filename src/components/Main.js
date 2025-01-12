@@ -1,15 +1,30 @@
 import Restcard from "./Restcard.js";
-import restData from "../data.json";
-import { useState } from "react";
+// import staticData from "../data.json";
+import { useState, useEffect } from "react";
 
 function Main() {
-  const restList =
-    restData?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants;
-  const [listOfRestaurants, setListOfRestaurants] = useState(restList);
+  let [listOfRestaurants, setListOfRestaurants] = useState([]);
+
+  function fetch_swiggy_data() {
+    getData().then((res) => {
+      const restList =
+        res?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
+          ?.restaurants;
+      listOfRestaurants = setListOfRestaurants(restList);
+    });
+  }
+
+  useEffect(fetch_swiggy_data, []);
 
   const restaurantsToRender = listOfRestaurants.map(({ info }) => {
-    const { name, avgRatingString, costForTwo, cloudinaryImageId, cuisines } =
-      info;
+    const {
+      name,
+      avgRatingString,
+      costForTwo,
+      cloudinaryImageId,
+      cuisines,
+      id,
+    } = info;
     return (
       <Restcard
         restName={name}
@@ -17,6 +32,7 @@ function Main() {
         cuisines={cuisines}
         costForTwo={costForTwo}
         cloudinaryImageId={cloudinaryImageId}
+        key={id}
       ></Restcard>
     );
   });
@@ -36,6 +52,22 @@ function Main() {
       <ul className="rest-card-container">{restaurantsToRender}</ul>
     </main>
   );
+}
+
+async function getData() {
+  const url =
+    "https://www.swiggy.com/dapi/restaurants/list/v5?lat=16.689239594133923&lng=74.25137657672167";
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.error(error.message);
+  }
 }
 
 export default Main;
