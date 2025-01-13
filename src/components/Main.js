@@ -1,41 +1,52 @@
 import Restcard from "./Restcard.js";
-// import staticData from "../data.json";
+import staticData from "../data.json";
 import { useState, useEffect } from "react";
+import Shimmer from "./Shimmer.js";
+import { SWIGGY_API_URL } from "../utils/constants.js";
 
 function Main() {
   let [listOfRestaurants, setListOfRestaurants] = useState([]);
 
   function fetch_swiggy_data() {
-    getData().then((res) => {
-      const restList =
-        res?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
-          ?.restaurants;
-      listOfRestaurants = setListOfRestaurants(restList);
-    });
+    getData()
+      .then((res) => {
+        const restList =
+          res?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
+            ?.restaurants;
+        listOfRestaurants = setListOfRestaurants(restList);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   useEffect(fetch_swiggy_data, []);
 
-  const restaurantsToRender = listOfRestaurants.map(({ info }) => {
-    const {
-      name,
-      avgRatingString,
-      costForTwo,
-      cloudinaryImageId,
-      cuisines,
-      id,
-    } = info;
-    return (
-      <Restcard
-        restName={name}
-        starRating={avgRatingString}
-        cuisines={cuisines}
-        costForTwo={costForTwo}
-        cloudinaryImageId={cloudinaryImageId}
-        key={id}
-      ></Restcard>
-    );
-  });
+  let list = new Array(10).fill(0);
+
+  const restaurantsToRender =
+    listOfRestaurants.length === 0
+      ? list.map((item, ind) => <Shimmer key={ind} />)
+      : listOfRestaurants.map(({ info }) => {
+          const {
+            name,
+            avgRatingString,
+            costForTwo,
+            cloudinaryImageId,
+            cuisines,
+            id,
+          } = info;
+          return (
+            <Restcard
+              restName={name}
+              starRating={avgRatingString}
+              cuisines={cuisines}
+              costForTwo={costForTwo}
+              cloudinaryImageId={cloudinaryImageId}
+              key={id}
+            ></Restcard>
+          );
+        });
 
   function filterListOfRestaurants() {
     let filteredListOfRestaurants = listOfRestaurants.filter(
@@ -55,18 +66,19 @@ function Main() {
 }
 
 async function getData() {
-  const url =
-    "https://www.swiggy.com/dapi/restaurants/list/v5?lat=16.689239594133923&lng=74.25137657672167";
+  const url = SWIGGY_API_URL;
   try {
     const response = await fetch(url);
 
     if (!response.ok) {
+      console.log("hello");
       throw new Error(`Response status: ${response.status}`);
     }
     const json = await response.json();
     return json;
   } catch (error) {
     console.error(error.message);
+    return staticData;
   }
 }
 
