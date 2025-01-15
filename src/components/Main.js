@@ -6,6 +6,7 @@ import { SWIGGY_API_URL } from "../utils/constants.js";
 
 function Main() {
   let [listOfRestaurants, setListOfRestaurants] = useState([]);
+  let [searchRestName, setSearchRestName] = useState("");
 
   function fetch_swiggy_data() {
     getData()
@@ -13,17 +14,18 @@ function Main() {
         const restList =
           res?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
             ?.restaurants;
-        listOfRestaurants = setListOfRestaurants(restList);
+        listOfRestaurants = setListOfRestaurants(restList); // Once swiggy data is received, then assign that data to our list of restaurants
       })
       .catch((err) => {
         console.log(err);
       });
   }
 
-  useEffect(fetch_swiggy_data, []);
+  useEffect(fetch_swiggy_data, []); // As soon as swiggy API data is received, react re-renderes the UI
 
   let list = new Array(10).fill(0);
 
+  // Until API data is received, show shimmer UI
   const restaurantsToRender =
     listOfRestaurants.length === 0
       ? list.map((item, ind) => <Shimmer key={ind} />)
@@ -48,6 +50,13 @@ function Main() {
           );
         });
 
+  function displaySearchRestaurant(restName) {
+    let newSearchRestList = listOfRestaurants.filter(({ info }) =>
+      info.name.toLowerCase().includes(restName)
+    );
+    setListOfRestaurants(newSearchRestList);
+  }
+
   function filterListOfRestaurants() {
     let filteredListOfRestaurants = listOfRestaurants.filter(
       (rest) => rest.info.avgRatingString > 4.5
@@ -60,6 +69,23 @@ function Main() {
       <button className="filter-btn" onClick={filterListOfRestaurants}>
         Filter restaurants
       </button>
+      <div className="search">
+        <label htmlFor="search">Search Restaurant</label>
+        <input
+          type="text"
+          id="search"
+          name="search"
+          placeholder="Enter restaurant name"
+          value={searchRestName}
+          onChange={(e) => setSearchRestName(e.target.value)}
+        ></input>
+        <button
+          className="btn-search"
+          onClick={() => displaySearchRestaurant(searchRestName)}
+        >
+          Search
+        </button>
+      </div>
       <ul className="rest-card-container">{restaurantsToRender}</ul>
     </main>
   );
@@ -78,7 +104,7 @@ async function getData() {
     return json;
   } catch (error) {
     console.error(error.message);
-    return staticData;
+    return staticData; // If API fails for any reason, then just show static data
   }
 }
 
