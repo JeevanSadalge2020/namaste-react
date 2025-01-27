@@ -1,35 +1,20 @@
 import Restcard from "./Restcard.js";
-import staticData from "../data.json";
 import { useState, useEffect } from "react";
 import Shimmer from "./Shimmer.js";
-import { SWIGGY_API_URL } from "../utils/constants.js";
+import getData from "../data.js";
 
 function Main() {
-  let [listOfRestaurants, setListOfRestaurants] = useState([]);
-  let [searchRestName, setSearchRestName] = useState("");
-
-  function fetch_swiggy_data() {
-    getData()
-      .then((res) => {
-        const restList =
-          res?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
-            ?.restaurants;
-        listOfRestaurants = setListOfRestaurants(restList); // Once swiggy data is received, then assign that data to our list of restaurants
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
+  let [listOfRests, setListOfRests] = useState([]);
 
   useEffect(fetch_swiggy_data, []); // As soon as swiggy API data is received, react re-renderes the UI
 
   let list = new Array(10).fill(0);
 
   // Until API data is received, show shimmer UI
-  const restaurantsToRender =
-    listOfRestaurants.length === 0
+  const restsToRender =
+    listOfRests.length === 0
       ? list.map((item, ind) => <Shimmer key={ind} />)
-      : listOfRestaurants.map(({ info }) => {
+      : listOfRests.map(({ info }) => {
           const {
             name,
             avgRatingString,
@@ -50,61 +35,42 @@ function Main() {
           );
         });
 
-  function displaySearchRestaurant(restName) {
-    let newSearchRestList = listOfRestaurants.filter(({ info }) =>
-      info.name.toLowerCase().includes(restName)
-    );
-    setListOfRestaurants(newSearchRestList);
+  function filterBestRests() {
+    let list = listOfRests.filter((rest) => rest.info.avgRatingString > 4.5);
+    setListOfRests(list);
   }
 
-  function filterListOfRestaurants() {
-    let filteredListOfRestaurants = listOfRestaurants.filter(
-      (rest) => rest.info.avgRatingString > 4.5
-    );
-    setListOfRestaurants(filteredListOfRestaurants);
+  function showListOfSearchRests(rest) {
+    console.log(rest);
   }
 
   return (
     <main>
-      <button className="filter-btn" onClick={filterListOfRestaurants}>
+      <button className="filter-btn" onClick={filterBestRests}>
         Filter restaurants
       </button>
       <div className="search">
         <label htmlFor="search">Search Restaurant</label>
-        <input
-          type="text"
-          id="search"
-          name="search"
-          placeholder="Enter restaurant name"
-          value={searchRestName}
-          onChange={(e) => setSearchRestName(e.target.value)}
-        ></input>
-        <button
-          className="btn-search"
-          onClick={() => displaySearchRestaurant(searchRestName)}
-        >
+        <input type="text" placeholder="Enter restaurant name"></input>
+        <button className="btn-search" onClick={showListOfSearchRests}>
           Search
         </button>
       </div>
-      <ul className="rest-card-container">{restaurantsToRender}</ul>
+      <ul className="rest-card-container">{restsToRender}</ul>
     </main>
   );
-}
 
-async function getData() {
-  const url = SWIGGY_API_URL;
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      console.log("hello");
-      throw new Error(`Response status: ${response.status}`);
-    }
-    const json = await response.json();
-    return json;
-  } catch (error) {
-    console.error(error.message);
-    return staticData; // If API fails for any reason, then just show static data
+  function fetch_swiggy_data() {
+    getData()
+      .then((res) => {
+        const restList =
+          res?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
+            ?.restaurants;
+        listOfRests = setListOfRests(restList); // Once swiggy data is received, then assign that data to our list of restaurants
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 }
 
