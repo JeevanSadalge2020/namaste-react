@@ -1,4 +1,4 @@
-import appLogo from "../assets/logo2.jpeg";
+import appLogo from "../assets/logo.jpeg";
 import { useState } from "react";
 
 export default Header = () => {
